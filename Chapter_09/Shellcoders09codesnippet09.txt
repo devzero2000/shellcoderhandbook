@@ -1,0 +1,26 @@
+/*
+
+The Shellcoder's Handbook: Discovering and Exploiting Security Holes
+Jack Koziol, David Litchfield, Dave Aitel, Chris Anley, 
+Sinan Eren, Neel Mehta, Riley Hassell
+Publisher: John Wiley & Sons
+ISBN: 0764544683
+
+Chapter 9: Overcomming Filters
+Code Snippet #4
+
+Please send comments/feedback to jack@infosecinstitute.com or visit http://www.infosecinstitute.com 
+
+*/
+
+push eax
+pop ecx
+push 0
+pop eax
+inc eax
+push eax
+push esp
+pop eax
+imul eax,dword ptr[eax],0x00410041
+push eax
+pop ecx
